@@ -7,6 +7,19 @@
   AmazonS3corsUpload = {};
   Drupal.behaviors.amazonS3corsUpload = {};
 
+  // delete X-Requested-With
+  function removeXRequestedWith(xhr) {
+    xhr.setRequestHeader('X-Requested-With', {toString: function(){ return ''; }}); 
+  }
+  // fudge Access-Control-Allow-Headers for Ceph
+  function fudgeAccessControlAllowHeaders(xhr) {
+    //h = xhr.headers['Access-Control-Request-Headers'];
+    //if(h) {
+     xhr.setRequestHeader('Access-Control-Allow-Headers', 'x-requested-with,accept,content-type'); 
+     xhr.setRequestHeader('Foobar', 'test'); 
+    //}
+  }
+
   AmazonS3corsUpload.handleUpload = function(file_selector, $form, triggering_element) {
     // Retrieve the file object.
     $file = $(file_selector);
@@ -42,7 +55,7 @@
 
         // Construct our AJAX request paramaters.
         var params = {
-          url: 'http://' + data.form.action + '/',
+          url: data.form.action,
           processData: false,
           data: fd,
           type: 'POST',
@@ -52,15 +65,18 @@
           // This works with jQuery 1.5.1+, however the withCredentials doesn't
           // stick w/ older versions. So we handle it in the beforeSend method.
           xhrFields: {
-            withCredentials: true
+            //withCredentials: true
           },
           // This can be removed when Drupal upgrades to a version of jQuery
           // that is > 1.5.1.
           beforeSend: function(xhr) {
-            xhr.withCredentials = true;
+            //xhr.withCredentials = true;
+	    //removeXRequestedWith(xhr);
+	    //fudgeAccessControlAllowHeaders(xhr);
           },
           xhr: function() {
             myXhr = $.ajaxSettings.xhr();
+	    //fudgeAccessControlAllowHeaders(myXhr);
             if(myXhr.upload){
               $file.hide();
               $('#amazons3-cors-progress').html('');
@@ -68,6 +84,7 @@
                 return AmazonS3corsUpload.displayProgress($file, e);
               }), false);
             }
+	    //removeXRequestedWith(myXhr);
             return myXhr;
           },
           error: function() {

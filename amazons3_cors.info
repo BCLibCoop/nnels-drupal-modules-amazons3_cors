@@ -1,6 +1,8 @@
 name = Amazon S3 CORS
 description = Provides support for uploading files directly to S3
 core = 7.x
+files[] = amazons3_cors.module
+files[] = CustomS3BrowserUpload.class.php
 
 dependencies[] = amazons3
 ; Requires jQuery 1.5.1+ for xhr.withCredentials.

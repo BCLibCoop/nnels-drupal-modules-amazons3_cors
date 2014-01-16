@@ -555,7 +555,7 @@ function amazons3_cors_sign_request() {
 
     $opts = array(
       'key' => !empty($base_dir) ? $base_dir . '/' . $filename : $filename,
-      'Content-Type' => '^' . $filemime,
+      //'Content-Type' => '^' . $filemime,
       'acl' => $acl,
     );
     #printf("DEBUG:%s:%d:%s\n",__FILE__,__LINE__,"opts");
