@@ -549,7 +549,10 @@ function amazons3_cors_sign_request() {
     $s3 = new CustomS3BrowserUpload();
     #printf("DEBUG:%s:%d:%s\n",__FILE__,__LINE__,"Start variable");
     if (variable_get('amazons3_customhost', 0)) { $s3->set_hostname(variable_get('amazons3_hostname', '')); }
-    if (variable_get('amazons3_ssl', 0)) { $s3->disable_ssl(); }
+    if (variable_get('amazons3_ssl', 0)) { 
+	    //$s3->disable_ssl(); 
+	    $s3->use_ssl = false; // disable_ssl spews a warning
+    }
     if (variable_get('amazons3_path_style', 0)) { $s3->enable_path_style(); }
     #printf("DEBUG:%s:%d:%s\n",__FILE__,__LINE__,"Done variables");
 
