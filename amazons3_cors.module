@@ -571,7 +571,7 @@ function amazons3_cors_sign_request() {
   }
   catch(Exception $e) {
     // Do something w/ errors.
-    #printf("DEBUG:%s:%d:%s\n",__FILE__,__LINE__,"Exception: ".$e);
+    printf("DEBUG:%s:%d:%s\n",__FILE__,__LINE__,"Exception: ".$e);
     var_dump($e->getTrace());
   }
 
