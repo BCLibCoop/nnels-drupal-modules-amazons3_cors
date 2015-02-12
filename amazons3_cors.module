@@ -540,7 +540,8 @@ function amazons3_cors_sign_request() {
     #printf("DEBUG:%s:%d:%s\n",__FILE__,__LINE__,"Start block");
     $bucket = variable_get('amazons3_bucket', '');
     // Make sure we're not overwritting an existing file.
-    $directory = 's3://' . $base_dir . '/';
+    $directory = 's3://';
+    $directory .= !empty($base_dir) ? ($base_dir . '/') : '';
     #printf("DEBUG:%s:%d:%s\n",__FILE__,__LINE__,"Create filename");
     $filename = str_replace($directory, '', file_create_filename($filename, $directory));
     #printf("DEBUG:%s:%d:%s\n",__FILE__,__LINE__,"Done create filename");
