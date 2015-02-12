@@ -5,9 +5,9 @@ hidden = TRUE
 
 dependencies[] = amazons3_cors
 
-; Information added by drupal.org packaging script on 2013-09-30
+; Information added by Drupal.org packaging script on 2014-11-04
 version = "7.x-1.x-dev"
 core = "7.x"
 project = "amazons3_cors"
-datestamp = "1380553731"
+datestamp = "1415079481"
 

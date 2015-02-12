@@ -42,7 +42,7 @@
 
         // Construct our AJAX request paramaters.
         var params = {
-          url: 'http://' + data.form.action + '/',
+          url: '//' + data.form.action + '/',
           processData: false,
           data: fd,
           type: 'POST',
@@ -88,6 +88,11 @@
             // initially clicked to upload the file.
             var button_id = $file.parent().find('input.cors-form-submit').attr('id');
             ajax = Drupal.ajax[button_id];
+            // Prevent Drupal from transferring the file twice as part of the
+            // form rebuild.
+            var file_selector_id = $file.attr('id');
+            $(ajax.form[0]).find('#' + file_selector_id).remove();
+
             ajax.form.ajaxSubmit(ajax.options);
           }
         };

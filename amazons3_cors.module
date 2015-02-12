@@ -537,7 +537,8 @@ function amazons3_cors_sign_request() {
     $bucket = variable_get('amazons3_bucket', '');
 
     // Make sure we're not overwritting an existing file.
-    $directory = 's3://' . $base_dir . '/';
+    $directory = 's3://';
+    $directory .= !empty($base_dir) ? ($base_dir . '/') : '';
     $filename = str_replace($directory, '', file_create_filename($filename, $directory));
 
     $opts = array(
