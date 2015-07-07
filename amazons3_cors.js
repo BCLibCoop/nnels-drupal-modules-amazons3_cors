@@ -142,12 +142,12 @@
    */
   Drupal.behaviors.amazonS3corsUpload.attach = function(context, settings) {
     // This takes care of preventing Drupal's AJAX framework.
-    $('form.amazons3-cors-upload-form input.cors-form-submit').unbind('mousedown');
+    $('input.cors-form-submit').unbind('mousedown');
 
     // Intercept click events for submit buttons in forms with a CORS upload
     // field so we can process the upload to S3 and then actually submit the
     // form when it's all taken care of.
-    $('form.amazons3-cors-upload-form input.cors-form-submit', context).one('click', function(e) {
+    $('input.cors-form-submit:not(.processed)', context).addClass('processed').one('click', function(e) {
       $form = $(this).parents('form');
 
       // Disable all the submit buttons, we'll submit the form via JS after
@@ -155,7 +155,7 @@
       $form.find('input[type="submit"]').attr('disabled', 'disabled');
 
       var triggering_element = $(this).attr('name');
-      AmazonS3corsUpload.handleUpload('.amazons3-cors-upload-file', $form, triggering_element);
+      AmazonS3corsUpload.handleUpload($(this).siblings('.amazons3-cors-upload-file'), $form, triggering_element);
       return false;
     });
   };
