@@ -569,7 +569,7 @@ function amazons3_cors_sign_request() {
     #printf("DEBUG:%s:%d:%s\n",__FILE__,__LINE__,"opts");
 
     // @todo: make this configurable.
-    $expires = '+5 minutes';
+    $expires = '+10 minutes';
     $params = $s3->generate_upload_parameters($bucket, $expires, $opts);
     $params['file_real'] = $filename;
     #printf("DEBUG:%s:%d:%s\n",__FILE__,__LINE__,"params");
