@@ -58,6 +58,9 @@ function amazons3_cors_libraries_info_alter(&$libraries) {
   // Include the s3browserupload.class.php file with the rest of the AWSSDK
   // files. We need this in order to generate a signature for our CORS request.
   $libraries['awssdk']['files']['php'][] = 'extensions/s3browserupload.class.php';
+  // Include our custom modification of the above class, because it hardcodes
+  // the S3 hostname.
+  $libraries['awssdk']['files']['php'][] = 'customs3browserupload.class.php';
 }
 
 /**
@@ -529,7 +532,8 @@ function amazons3_cors_sign_request() {
     $error = t('Unable to load the AWS SDK. Please check you have installed the library correctly and configured your S3 credentials.');
     // @todo: How do you send an ajax error?
   }
-  else if (!class_exists('S3BrowserUpload')) {
+  else if (!class_exists('CustomS3BrowserUpload')) {
+    // @todo: improve this error message
     $error = t('Cannot load AmazonS3 class. Please check the awssdk is installed correctly');
   }
 
@@ -541,6 +545,29 @@ function amazons3_cors_sign_request() {
     $directory = 's3://';
     $directory .= !empty($base_dir) ? ($base_dir . '/') : '';
     $filename = str_replace($directory, '', file_create_filename($filename, $directory));
+    #printf("DEBUG:%s:%d:%s\n",__FILE__,__LINE__,"Start block");
+    $bucket = variable_get('amazons3_bucket', '');
+    // Make sure we're not overwritting an existing file.
+    $directory = 's3://';
+    $directory .= !empty($base_dir) ? ($base_dir . '/') : '';
+    #printf("DEBUG:%s:%d:%s\n",__FILE__,__LINE__,"Create filename");
+    $filename = str_replace($directory, '', file_create_filename($filename, $directory));
+    #printf("DEBUG:%s:%d:%s\n",__FILE__,__LINE__,"Done create filename");
+
+    #printf("DEBUG:%s:%d:%s\n",__FILE__,__LINE__,"Init class");
+    $s3 = new CustomS3BrowserUpload();
+    #printf("DEBUG:%s:%d:%s\n",__FILE__,__LINE__,"Start variable");
+    $hostname = variable_get('amazons3_hostname', '');
+    if (!empty($hostname)) {
+        $s3->set_hostname($hostname);
+        $s3->allow_hostname_override(FALSE);
+    }
+    if (variable_get('amazons3_ssl', 1) === 0) { 
+	    //$s3->disable_ssl(); 
+	    $s3->use_ssl = false; // disable_ssl spews a warning
+    }
+    if (variable_get('amazons3_path_style', 0)) { $s3->enable_path_style(); }
+    #printf("DEBUG:%s:%d:%s\n",__FILE__,__LINE__,"Done variables");
 
     $opts = array(
       'key' => !empty($base_dir) ? $base_dir . '/' . $filename : $filename,
@@ -555,6 +582,18 @@ function amazons3_cors_sign_request() {
   }
   catch(Exception $e) {
     // Do something w/ errors.
+    #printf("DEBUG:%s:%d:%s\n",__FILE__,__LINE__,"opts");
+
+    // @todo: make this configurable.
+    $expires = '+10 minutes';
+    $params = $s3->generate_upload_parameters($bucket, $expires, $opts);
+    $params['file_real'] = $filename;
+    #printf("DEBUG:%s:%d:%s\n",__FILE__,__LINE__,"params");
+  }
+  catch(Exception $e) {
+    // Do something w/ errors.
+    printf("DEBUG:%s:%d:%s\n",__FILE__,__LINE__,"Exception: ".$e);
+    var_dump($e->getTrace());
   }
 
   drupal_add_http_header('Content-Type', 'application/json; charset=utf-8');

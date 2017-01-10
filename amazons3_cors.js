@@ -7,6 +7,19 @@
   AmazonS3corsUpload = {};
   Drupal.behaviors.amazonS3corsUpload = {};
 
+  // delete X-Requested-With
+  function removeXRequestedWith(xhr) {
+    xhr.setRequestHeader('X-Requested-With', {toString: function(){ return ''; }}); 
+  }
+  // fudge Access-Control-Allow-Headers for Ceph
+  function fudgeAccessControlAllowHeaders(xhr) {
+    //h = xhr.headers['Access-Control-Request-Headers'];
+    //if(h) {
+     xhr.setRequestHeader('Access-Control-Allow-Headers', 'x-requested-with,accept,content-type'); 
+     xhr.setRequestHeader('Foobar', 'test'); 
+    //}
+  }
+
   AmazonS3corsUpload.handleUpload = function(file_selector, $form, triggering_element) {
     // Retrieve the file object.
     $file = $(file_selector);
