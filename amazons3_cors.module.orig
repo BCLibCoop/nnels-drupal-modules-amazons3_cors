@@ -279,10 +279,8 @@ function amazons3_cors_upload_process($element, &$form_state, &$form) {
     $form['#' . $element['upload_button']['#name'] . '_s3_acl'] = $element['#s3_acl'];
   }
 
-  // And always store the field name, entity type and bundle.
+  // And always store the field name.
   $form['#' . $element['upload_button']['#name'] . '_field_name'] = $element['#field_name'];
-  $form['#' . $element['upload_button']['#name'] . '_entity_type'] = $element['#entity_type'];
-  $form['#' . $element['upload_button']['#name'] . '_bundle'] = $element['#bundle'];
 
   if ($fid && $element['#file']) {
     $element['filelink'] = array(
@@ -519,6 +517,7 @@ function amazons3_cors_sign_request() {
   $filename = $_POST['filename'];
   $filemime = $_POST['filemime'];
   $triggering_element = $_POST['triggering_element'];
+  $bucket = variable_get('amazons3_bucket', '');
   // @todo: make this configurable?
   $expires = '+5 minutes';
 
@@ -529,17 +528,12 @@ function amazons3_cors_sign_request() {
   // Name of the field that we're uploading a file to. Stored in
   // amazons3_cors_upload_process().
   $field_name = $form['#' . $triggering_element . '_field_name'];
-  $entity_type = $form['#' . $triggering_element . '_entity_type'];
-  $bundle = $form['#' . $triggering_element . '_bundle'];
+
   $acl = isset($form['#' . $triggering_element . '_s3_acl']) ? $form['#' . $triggering_element . '_s3_acl'] : 'private';
 
   // Get the "File directory" setting for this field, as a URI.
-  $instance_info = field_info_instance($entity_type, $field_name, $bundle);
+  $instance_info = field_info_instance($form['#entity_type'], $field_name, $form['#bundle']);
   $field_info = field_info_field($field_name);
-
-  // Determine the bucket from the field info settings.
-  $bucket = !empty($field_info['settings']['amazons3_bucket']) ? $field_info['settings']['amazons3_bucket'] : variable_get('amazons3_bucket', '');
-
   // "File directory" supports tokens, so we have to do the replacement ourselves.
   $file_directory = token_replace($instance_info['settings']['file_directory']);
   $file_directory_uri = "{$field_info['settings']['uri_scheme']}://$bucket/$file_directory";
