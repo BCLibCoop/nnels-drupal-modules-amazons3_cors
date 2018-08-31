@@ -6,6 +6,8 @@ dependencies[] = amazons3
 ; Requires jQuery 1.5.1+ for xhr.withCredentials.
 dependencies[] = jquery_update
 
+#files[] = awssdk.postobject-v4.class.php
+
 ; Information added by Drupal.org packaging script on 2016-01-21
 version = "7.x-2.x-dev"
 core = "7.x"

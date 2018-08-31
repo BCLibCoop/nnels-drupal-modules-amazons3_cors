@@ -540,8 +540,14 @@ function amazons3_cors_sign_request() {
   // Determine the bucket from the field info settings.
   $bucket = !empty($field_info['settings']['amazons3_bucket']) ? $field_info['settings']['amazons3_bucket'] : variable_get('amazons3_bucket', '');
 
-  // "File directory" supports tokens, so we have to do the replacement ourselves.
-  $file_directory = token_replace($instance_info['settings']['file_directory']);
+  // "File directory" supports tokens, so we have to do the replacement
+  //If Filefield paths exist use that - allows Node and Field Collection tokens
+  if ($instance_info['settings']['filefield_paths']) $file_directory =
+    token_replace($instance_info['settings']['filefield_paths']['file_path']['value'], array('field_collection_item' => $form_state['field_collection_item']));
+  else $file_directory = token_replace($instance_info['settings']['file_directory']);
+
+  //@todo Need to set uri_scheme and ensure bucket does not include endpoint
+  //@todo where does signed URL hook come in?
   $file_directory_uri = "{$field_info['settings']['uri_scheme']}://$bucket/$file_directory";
 
   // Determine the cid prefix match for common cache entries.
@@ -557,7 +563,7 @@ function amazons3_cors_sign_request() {
   $s3_key = str_replace($bucket . '/', '', file_uri_target($uri));
 
   try {
-    $s3_client = S3Client::factory();
+    $s3_client = S3Client::factory(array('signature' => 'v4'));
 
     $options = array(
       'acl' => $acl,
@@ -569,8 +575,9 @@ function amazons3_cors_sign_request() {
       'key' => $s3_key,
       'ttd' => $expires,
     );
-
-    $post_object = new PostObject($s3_client, $bucket, $options);
+    module_load_include('php', 'amazons3_cors', 'src/amazons3Cors/awssdk.postobject-v4.class');
+    $post_object = new Drupal\amazons3Cors\PostObjectV4($s3_client, $bucket, $options);
+    #$post_object = new PostObject($s3_client, $bucket, $options);
     $post_object->prepareData();
 
     $data = array(
