@@ -3,6 +3,7 @@ description = Provides support for uploading files directly to S3
 core = 7.x
 
 dependencies[] = amazons3
+dependencies[] = filefield_paths
 ; Requires jQuery 1.5.1+ for xhr.withCredentials.
 dependencies[] = jquery_update
 
